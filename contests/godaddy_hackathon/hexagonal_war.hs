@@ -7,7 +7,25 @@ import Debug.Trace
 main = do
     [n, m] <- pure (map read) <*> ((pure words) <*> getLine) :: IO [Int]
     (romans, persians) <- genGraph n m
-    print $ vertices persians
+    print $ solve n romans persians
+
+solve :: Int -> Graph -> Graph -> String
+solve n romans persians = if romanWin then "ROMANS"
+                          else if persianWin then "PERSIANS"
+                               else "NEITHER"
+    where
+          persianWin = testWin pStart pEnd persians
+          pEnd = [n*n-n..n*n-1]
+          pStart = [0..n-1]
+          romanWin = testWin rStart rEnd romans
+          rEnd = map (\x -> x+n-1) rStart
+          rStart = map (n*) [0..n-1]
+          testWin :: [Int] -> [Int] -> Graph -> Bool
+          testWin [] _ _ = False
+          testWin (x:xs) end graph =
+              let s = fromList $ reachable graph x
+              in if or $ map (\n -> member n s) end then True
+                 else testWin (filter (\n -> not $ member n s) xs) end graph
 
 convertToVertex :: Int -> (Int, Int) -> Vertex
 convertToVertex n (r, c) =
