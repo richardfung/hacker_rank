@@ -7,7 +7,7 @@ import Debug.Trace
 main = do
     [n, m] <- pure (map read) <*> ((pure words) <*> getLine) :: IO [Int]
     (romans, persians) <- genGraph n m
-    print $ solve n romans persians
+    putStrLn $ solve n romans persians
 
 solve :: Int -> Graph -> Graph -> String
 solve n romans persians = if romanWin then "ROMANS"
