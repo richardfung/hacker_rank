@@ -3,31 +3,39 @@ import Data.Map.Strict as M
 import Data.Maybe
 import Debug.Trace
 
+type Count = Map Char Int
+
 main = do
     s <- getLine
     putStrLn $! answer s
 
+add :: (Ord k) => k -> Map k Int -> Map k Int
+add k v m = insert k (get k m + v)  m
+
 get :: (Ord k) => k -> Map k Int -> Int
 get k m = findWithDefault 0 k m
 
+decrement :: (Ord k) => k -> Map k Int -> Map k Int
+decrement k m = add k (-1) m
+
 increment :: (Ord k) => k -> Map k Int -> Map k Int
-increment k m = insert k (get k m + 1)  m
+increment k m = add k 1 m
 
 answer :: String -> String
 answer s = helper (reverse s) "" M.empty totals []
-    where helper :: String -> String -> Map Char Int -> Map Char Int -> [String]
-                    -> String
-          helper [] _ _ _ revAcc = concat $! reverse revAcc
-          helper (c:cs) temp counts totals revAcc
-              | count < total =
-                  helper cs (c:temp) (increment c counts) totals revAcc
+    where helper :: String -> String -> Count -> [String] -> Count -> Count
+                    -> Count
+          helper (c:cs) temp tempCounts revAcc accCounts shuffleCounts
+                 totalCounts
+              | (get c tempCounts) + (get c shuffleCounts) < totalCounts =
+                    helper cs (c:temp) (increment c tempCounts) revAcc accCounts
+                           shuffleCounts totalCounts
               | otherwise =
-                  let sortedTemp = sort (c:temp)
-                      goodTemp = take (fromJust (elemIndex c sortedTemp) + 1)
-                                      sortedTemp
-                      newRevAcc = goodTemp : revAcc
-                  in helper cs "" (increment c counts) totals newRevAcc
-              where count = get c counts
-                    total = totals ! c 
-          totals = M.map (`div` 2) $! Prelude.foldr (\k -> increment k)
-                                                          M.empty s
+                    let sortedTemp = sort temp
+                        cPos = fromJust $! elemIndex c sortedTemp
+                        smallTemp = take (cPos+1) sortedTemp
+                        newTemp = drop (cPos+1) sortedTemp
+                        newTempCounts = increment c $! foldr decrement
+                                                             tempCounts
+                                                             smallTemp
+
