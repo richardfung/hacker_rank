@@ -11,16 +11,14 @@ main = do
                                  ) [1..n] :: IO [(Int,Int)]
   putStrLn $ if isConcave points then "YES" else "NO"
 
-medianHeight :: [(Int, Int)] -> Double
-medianHeight xs = 
-  let hs = sort $ map snd xs
-      l = length hs `div` 2
-  in if l `mod` 2 == 0 then (fromIntegral $ (hs !! l) + (hs !! l-1)) / 2
-     else fromIntegral $ hs !! l
+averageHeight :: [(Int, Int)] -> Double
+averageHeight xs =
+  let hs = map (fromIntegral . snd) xs :: [Double]
+  in (sum hs) / (fromIntegral $ length hs)
 
 orderPoints :: [(Int, Int)] -> [(Int, Int)]
 orderPoints points =
-  let midHeight = medianHeight points
+  let midHeight = averageHeight points
       topHalf = sort $ filter (\p -> (fromIntegral $ snd p) >= midHeight) points
       botHalf = reverse $ sort $ filter (\p -> (fromIntegral $ snd p) < midHeight) points
   in topHalf ++ botHalf
