@@ -11,9 +11,16 @@ add n heap =
        array <- readIORef $ array heap
        writeArray array (size heap) n
        modifyIORef' (+1) $ size heap
-       bubbleUp heap n
+       bubbleUp heap $ size heap - 1
 
 bubbleUp :: MaxHeap -> Int -> IO ()
+bubbleUp heap pos = do
+  p <- readArray (array heap) (parent pos)
+  val <- readArray (array heap) pos
+  if p < val then do writeArray (array heap) pos p
+                     writeArray (array heap) (parent pos) val
+                     bubbleUp heap $ parent pos
+  else return ()
 
 heap :: IO MaxHeap
 heap = do
@@ -28,8 +35,9 @@ increaseSize heap = do
   writeIORef (array heap) newArray'
 
 max :: MaxHeap -> IO Int
+max heap = readArray (array heap) 0
 
-merge :: MaxHeap -> MaxHeap -> MaxHeap
+merge :: MaxHeap -> MaxHeap -> IO ()
 
 parent :: Int -> Int
 parent n = (n-1) `div` 2
