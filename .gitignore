@@ -1,5 +1,7 @@
 *
 
+!.gitignore
+!*/
 !*.hs
 !*.in
 !*.out
