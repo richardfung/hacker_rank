@@ -1,5 +1,6 @@
 import Data.List as L
 import Data.Map as M
+import Debug.Trace
 
 type Count = Map Char Int
 
@@ -23,14 +24,13 @@ findSmallest s =helper s M.empty [] counts counts
                                                             added
                                                    ) unadded
                 newRevBuffer = reverse newBuffer
-                newACount = L.foldr increment aCount added
-                newShuffleCount = L.foldr increment shuffleCount unadded 
+                newACount = L.foldr decrement aCount added
+                newShuffleCount = L.foldr decrement shuffleCount unadded 
             in added ++ (helper cs newBufferCount newRevBuffer newACount
                                 newShuffleCount)
           else helper cs (increment c bufferCount) (c:revBuffer) aCount
                       shuffleCount 
         counts = M.map (`div` 2) $ L.foldr increment M.empty s
-        
 
 findDefZero :: Char -> Count -> Int
 findDefZero c count = M.findWithDefault 0 c count
