@@ -6,23 +6,24 @@ type Count = Map Char Int
 
 main = do
   s <- getLine
-  putStrLn $ findSmallest s
+  putStrLn $ findSmallest $ reverse s
 
 decrement :: Char -> Count -> Count
 decrement c count = M.insert c (count ! c - 1) count
 
 findSmallest :: String -> String
-findSmallest s =helper s M.empty [] counts counts
+findSmallest s = helper s M.empty [] counts counts
   where helper :: String -> Count -> String -> Count -> Count -> String
-        helper [] _ _ _ _ = ""
+        helper [] bufferCount _ _ shuffleCount = ""
         helper (c:cs) bufferCount revBuffer aCount shuffleCount =
           if required bufferCount shuffleCount c then
             let (added, unadded, newBuffer) =
                   section aCount (reverse $ c:revBuffer) c
-                newBufferCount = L.foldr decrement (L.foldr decrement
-                                                            bufferCount
-                                                            added
-                                                   ) unadded
+                newBufferCount =
+                  increment c $ L.foldr decrement (L.foldr decrement
+                                                           bufferCount
+                                                           added
+                                                  ) unadded
                 newRevBuffer = reverse newBuffer
                 newACount = L.foldr decrement aCount added
                 newShuffleCount = L.foldr decrement shuffleCount unadded 
